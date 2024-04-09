@@ -1,4 +1,5 @@
 import json
+from sciform import SciNum
 
 
 # Load JSON data from a file
@@ -52,17 +53,11 @@ def load_data(filename):
         print(f"Error: {e}")
 
 
-def print_result(value, unit, precision=3):
-    """
-    Print a value with its unit in a standardized format with specified precision.
-
-    Parameters:
-    - value: The numerical value to print.
-    - unit: The unit of measure as a string.
-    - precision: The number of digits to display after the decimal point.
-    """
-    formatted_value = f"{value:.{precision}e}"  # Engineering notation
-    print(f"{formatted_value} {unit}")
+def print_result(value, unit, precision=4):
+    # Using formatting mini language from sciform to achieve deesired engineering notation.
+    # https://sciform.readthedocs.io/en/stable/fsml.html
+    formatted_value = f"{SciNum(value):#!{precision}rp}"
+    print(f"{formatted_value}{unit}")
 
 
 if __name__ == "__main__":
