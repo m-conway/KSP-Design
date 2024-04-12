@@ -5,6 +5,9 @@ from Data.planets import planets
 
 
 import math
+import numpy as np
+from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
 
 
 def compute_delta_veocity(isp, mass_i, mass_f):
@@ -37,13 +40,68 @@ def compute_hoffman_transfer(h_i: float, r_f: float, body: dict) -> float:
     return delta_v
 
 
+def vertical_launch():
+
+    def rocket_propulsion_equation(t, y, I_sp, burn_rate, body):
+        v, h, m = y
+
+        radius = body["radius"]
+
+        gravity = c["G0"] * (radius / (radius + h)) ** 2
+
+        dmdt = -burn_rate
+        dvdt = (-I_sp * c["G0"] / m) * dmdt - gravity  # TODO: Include drag losses
+        dhdt = v
+
+        return dvdt, dhdt, dmdt
+
+    I_sp = 250
+    m_0 = 12700
+    m_p = 8610
+    t_burn = 60
+    burn_rate = m_p / t_burn
+
+    sol = solve_ivp(
+        rocket_propulsion_equation,
+        [0, t_burn],
+        [0, 0, m_0],
+        args=(I_sp, burn_rate, planets["Earth"]),
+        dense_output=True,
+    )
+
+    time = np.linspace(0, t_burn, 100)
+    z = sol.sol(time)
+
+    _, axes = plt.subplots(3, 1)
+
+    axes[0].plot(time, z[0, :])
+    axes[0].set_ylabel("Velocity (m/s)")
+    axes[0].grid(True)
+
+    axes[1].plot(time, z[1, :] / 1000)
+    axes[1].set_ylabel("Altitude (km)")
+    axes[1].grid(True)
+
+    axes[2].plot(time, z[2, :])
+    axes[2].set_ylabel("Prop (kg)")
+    axes[2].set_xlabel("Time (s)")
+    axes[2].grid(True)
+
+    plt.show()
+
+    print(f"Burnout velocity: {z[0,-1]: 5.2f} m/s")
+    print(f"Burnout altitude: {z[1,-1]/1000: 5.2f} km")
+
+
 if __name__ == "__main__":
     # dV = compute_delta_veocity(340, 24.81, 8.81)
     # print_result(dV, "m/s")
     # print(dV)
 
-    delta_v = compute_hoffman_transfer(250e3, 42164.154e3, planets["Earth"])
-    print_result(delta_v, "m/s")
+    # delta_v = compute_hoffman_transfer(250e3, 42164.154e3, planets["Earth"])
+    # print_result(delta_v, "m/s")
 
-    delta_v = compute_hoffman_transfer(70e3, 1000e3, planets["Kerbin"])
-    print_result(delta_v, "m/s")
+    # delta_v = compute_hoffman_transfer(70e3, 1000e3, planets["Kerbin"])
+    # print_result(delta_v, "m/s")
+
+    vertical_launch()
