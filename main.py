@@ -46,11 +46,13 @@ def vertical_launch():
         v, h, m = y
 
         radius = body["radius"]
+        C_D = 1.2  # Made up placeholder.
 
-        gravity = c["G0"] * (radius / (radius + h)) ** 2
+        gravity = c["G0"] * (radius / (radius + h)) ** 2  # From: g  = G m/r^2
+        drag = C_D * v
 
         dmdt = -burn_rate
-        dvdt = (-I_sp * c["G0"] / m) * dmdt - gravity  # TODO: Include drag losses
+        dvdt = (-I_sp * c["G0"] / m) * dmdt - gravity - drag / m
         dhdt = v
 
         return dvdt, dhdt, dmdt

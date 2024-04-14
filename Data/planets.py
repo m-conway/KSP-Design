@@ -1,7 +1,7 @@
 planets = {
     "Earth": {
         "mass": ...,
-        "radius": 6378e3,  # kg
+        "radius": 6378e3,  # m
         "gravitation_parameter": 3.986e5 * 1000**3,
     },
     "Kerbin": {
